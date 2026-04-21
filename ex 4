@@ -1,0 +1,75 @@
+1. Find Your Docker Username
+
+Go to Docker Hub
+
+👉 Steps:
+Login to your account
+Look at top-right corner (profile icon)
+You’ll see your username
+
+👉 Example:
+
+nithiyak
+
+Use this for:
+
+DOCKER_USERNAME
+🔑 2. Create Docker Access Token (IMPORTANT)
+👉 Steps:
+Go to Docker Hub
+Click your profile icon (top-right)
+Click Account Settings
+Go to Security tab
+Click New Access Token
+👉 Fill like this:
+Token name → github-actions
+Permissions → Read & Write
+
+Click ✅ Generate
+
+⚠️ VERY IMPORTANT
+
+👉 Copy the token immediately
+(It will look like this 👇)
+
+dckr_pat_xxxxxxxxxxxxxxxxx
+🔐 3. Where to Use It
+
+Back in GitHub secrets page:
+
+👉 Add:
+Secret 1:
+Name: DOCKER_USERNAME
+Value: your username
+Secret 2:
+Name: DOCKER_PASSWORD
+Value: paste the token
+
+
+Step 3: Save & Push to GitHub
+
+Run this in your terminal:
+
+git add .
+git commit -m "Added CI pipeline"
+git push
+🚀 Step 4: What Happens Next
+
+As soon as you push:
+
+✔ GitHub detects .github/workflows/docker-publish.yml
+✔ It automatically runs the pipeline
+✔ Builds Docker image
+✔ Pushes it to Docker Hub
+
+👀 Step 5: Check Output
+👉 On GitHub
+Go to Actions tab
+You’ll see:
+🟡 Running
+🟢 Success (green)
+👉 On Docker Hub
+Your repo will have:
+python-app:latest
+
+structure   .github/workflows/docker-publish.yml
