@@ -1,0 +1,134 @@
+app.py
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# In-memory database
+students = {}
+next_id = 1
+
+# -----------------------------
+# 1. Get all students
+# -----------------------------
+@app.route('/students', methods=['GET'])
+def get_students():
+    return jsonify(list(students.values()))
+
+# -----------------------------
+# 2. Add a new student
+# -----------------------------
+@app.route('/students', methods=['POST'])
+def add_student():
+    global next_id
+    data = request.get_json()
+
+    # Validation
+    if not data or 'name' not in data or 'roll' not in data:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    student = {
+        'id': next_id,
+        'name': data['name'],
+        'roll': data['roll']
+    }
+
+    students[next_id] = student
+    next_id += 1
+
+    return jsonify(student), 201
+
+# -----------------------------
+# 3. Delete a student
+# -----------------------------
+@app.route('/students/<int:sid>', methods=['DELETE'])
+def delete_student(sid):
+    if sid not in students:
+        return jsonify({'error': 'Student not found'}), 404
+
+    del students[sid]
+    return jsonify({'message': 'Deleted successfully'})
+
+# -----------------------------
+# Run the app
+# -----------------------------
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+Testing Using curl
+➤ Add Student
+curl -X POST http://localhost:5000/students \
+-H "Content-Type: application/json" \
+-d "{\"name\":\"Alice\",\"roll\":\"CS001\"}"
+➤ Get All Students
+curl http://localhost:5000/students
+➤ Delete Student
+curl -X DELETE http://localhost:5000/students/1
+📊 Output Example
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "roll": "CS001"
+  }
+]
+
+
+Step 1: Open in Browser (Easy way)
+
+Go to this URL in your browser:
+
+👉 http://127.0.0.1:5000/students
+
+🔹 Right now it will show:
+
+[]
+
+(empty list because no students added yet)
+
+✅ Step 2: Add Data (IMPORTANT)
+
+You must add a student first, otherwise nothing will appear.
+
+✔ Option 1: Using Command Prompt (curl)
+
+Run this in a new terminal (keep Flask running):
+
+curl -X POST http://127.0.0.1:5000/students ^
+-H "Content-Type: application/json" ^
+-d "{\"name\":\"Alice\",\"roll\":\"CS001\"}"
+
+👉 You should get:
+
+{"id":1,"name":"Alice","roll":"CS001"}
+✔ Option 2: Using Postman (Easier)
+Open Postman
+Method → POST
+URL → http://127.0.0.1:5000/students
+Body → raw → JSON:
+{
+  "name": "Alice",
+  "roll": "CS001"
+}
+
+Click Send
+
+✅ Step 3: View Output
+
+Now open browser:
+
+👉 http://127.0.0.1:5000/students
+
+You will see:
+
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "roll": "CS001"
+  }
+]
+✅ Step 4: Delete (Optional)
+curl -X DELETE http://127.0.0.1:5000/students/1
