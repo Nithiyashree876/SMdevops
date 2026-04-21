@@ -1,0 +1,105 @@
+Step 0 – Prerequisites (important)
+
+Before running any kubectl command, you must have:
+
+A running Kubernetes cluster
+(use one of these):
+Minikube (recommended for beginners)
+Docker Desktop Kubernetes
+A cloud cluster (AWS EKS / GKE / AKS)
+
+👉 Check if Kubernetes is working:
+
+kubectl version --client
+kubectl get nodes
+
+If you see nodes → ✅ you're ready
+
+🚀 Step 1 – Create a Deployment
+
+Run this in your terminal / command prompt:
+
+kubectl create deployment myapp --image=nginx:latest
+
+Now verify:
+
+kubectl get deployments
+kubectl get pods
+
+👉 What happens:
+
+Kubernetes creates a Deployment
+It automatically creates a Pod running nginx
+📈 Step 2 – Scale the Deployment
+Scale UP to 3 pods:
+kubectl scale deployment myapp --replicas=3
+
+Check:
+
+kubectl get pods
+
+👉 You’ll see 3 pods running
+
+Scale DOWN to 1 pod:
+kubectl scale deployment myapp --replicas=1
+🌐 Step 3 – Expose the Application
+kubectl expose deployment myapp --port=80 --type=NodePort
+
+Check service:
+
+kubectl get services
+
+👉 You’ll get something like:
+
+myapp   NodePort   10.x.x.x   <port>
+🔍 Access in Browser
+
+If using Minikube:
+
+minikube service myapp
+
+Otherwise:
+
+http://<node-ip>:<node-port>
+🔎 Step 4 – Inspect & Debug
+Describe a pod:
+kubectl describe pod <pod-name>
+View logs:
+kubectl logs <pod-name>
+
+To get pod name:
+
+kubectl get pods
+🧹 Step 5 – Cleanup
+kubectl delete deployment myapp
+kubectl delete service myapp
+📄 Step 6 – Using YAML (Better Practice)
+Create file: deployment.yaml
+
+Paste this:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+Apply it:
+kubectl apply -f deployment.yaml
+
+Check everything:
+
+kubectl get all
