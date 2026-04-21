@@ -1,0 +1,123 @@
+Step-by-step: GitHub Actions + Docker Hub pipeline
+✅ Step 1 – Prepare your Python project
+
+Your repo should look like this:
+
+python-app/
+│── app.py
+│── requirements.txt
+│── Dockerfile
+Example Dockerfile
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY . .
+RUN pip install -r requirements.txt
+
+CMD ["python", "app.py"]
+✅ Step 2 – Push project to GitHub
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/<your-username>/python-app.git
+git push -u origin main
+🔐 Step 3 – Add Docker Hub credentials (VERY IMPORTANT)
+
+Go to your repo →
+Settings → Secrets and variables → Actions → New repository secret
+
+Add:
+
+DOCKER_USERNAME → your Docker Hub username
+DOCKER_PASSWORD → your Docker Hub access token (not your password)
+
+👉 Create token from Docker Hub:
+
+Account Settings → Security → Access Tokens
+📁 Step 4 – Create GitHub Actions workflow
+
+Create this file in your repo:
+
+.github/workflows/build-push.yml
+
+Paste your YAML:
+
+name: Docker Build & Push
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/python-app:latest
+🚀 Step 5 – Trigger the pipeline
+
+Just push any change:
+
+git add .
+git commit -m "Trigger CI"
+git push
+🔍 Step 6 – Watch pipeline run
+
+Go to:
+👉 GitHub repo → Actions tab
+
+You’ll see:
+
+Build starting
+Docker image building
+Image pushed to Docker Hub
+📦 Step 7 – Verify Docker image
+
+Go to your Docker Hub repo:
+
+https://hub.docker.com/r/<your-username>/python-app
+
+Pull it locally:
+
+docker pull <your-username>/python-app:latest
+
+Run it:
+
+docker run -p 5000:5000 <your-username>/python-app
+💡 What’s happening behind the scenes
+GitHub detects a push
+Workflow runs on a cloud VM
+Docker image is built using Buildx
+Image is pushed to Docker Hub automatically
+⚠️ Common mistakes (very important)
+❌ Wrong Docker credentials → login fails
+❌ Repo name mismatch → image not found
+❌ No Dockerfile → build fails
+❌ Using password instead of token → authentication error
+✅ Bonus (Best Practice Upgrade)
+
+If you want versioning:
+
+tags: |
+  ${{ secrets.DOCKER_USERNAME }}/python-app:latest
+  ${{ secrets.DOCKER_USERNAME }}/python-app:${{ github.sha }}
